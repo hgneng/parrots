@@ -88,9 +88,10 @@ class TextToSpeech(object):
             t = threading.Thread(target=self._play_audio, args=(path, delay))
             threads.append(t)
             delay += 0.355
+
         for t in threads:
             t.start()
-        t.join()
+            t.join()
 
     def synthesize(self, input_text='', output_wav_path=''):
         """
@@ -107,6 +108,7 @@ class TextToSpeech(object):
         result = AudioSegment.silent(duration=500 * len(input_text))
         for syllable in syllables:
             path = os.path.join(self.syllables_dir, syllable + ".wav")
+            logger.debug("path: %s" % path)
             sound_file = Path(path)
             # insert 500 sr silence for punctuation marks
             if syllable in self.punctuation:
@@ -116,6 +118,7 @@ class TextToSpeech(object):
                 continue
             # skip sound file that doesn't exist
             if not sound_file.is_file():
+                logger.debug("file not found: %s" % path)
                 continue
             segment = AudioSegment.from_wav(path)
             result = result.overlay(segment, position=delay)
